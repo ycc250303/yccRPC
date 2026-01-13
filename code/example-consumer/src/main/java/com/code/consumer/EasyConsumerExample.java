@@ -6,7 +6,6 @@ import com.code.service.UserService;
 
 public class EasyConsumerExample {
     public static void main(String[] args) {
-        // TODO: 需要获取 UserService的实现类对象
         UserService userService = ServiceProxyFactory.getProxy(UserService.class);
         User user = new User();
         user.setName("ycc");
