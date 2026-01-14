@@ -1,0 +1,4 @@
+jdk=com.code.serializer.JdkSerializer
+hessian=com.code.serializer.HessianSerializer
+json=com.code.serializer.JsonSerializer
+kryo=com.code.serializer.KryoSerializer

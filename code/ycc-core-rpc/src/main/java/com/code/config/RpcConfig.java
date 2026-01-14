@@ -1,5 +1,6 @@
 package com.code.config;
 
+import com.code.serializer.SerializerKeys;
 import lombok.Data;
 
 @Data
@@ -28,4 +29,9 @@ public class RpcConfig {
      * 是否开启mock
      */
     private boolean mock = false;
+
+    /**
+     * 序列化方式
+     */
+    private String serializer = SerializerKeys.JSON;
 }
