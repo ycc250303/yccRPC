@@ -25,6 +25,7 @@ public class ConsumerExample {
         }
         long number = userService.getNumber();
         System.out.println(number);
+        System.out.println("=============================");
     }
 }
 
