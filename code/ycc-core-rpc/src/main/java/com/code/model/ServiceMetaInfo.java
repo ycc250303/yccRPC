@@ -33,7 +33,6 @@ public class ServiceMetaInfo {
      */
     private String serviceGroup = "default";
 
-
     public String getServiceKey() {
         return String.format("%s:%s", serviceName, serviceVersion);
     }
@@ -44,7 +43,7 @@ public class ServiceMetaInfo {
 
     public String getServiceAddress() {
         if (!StrUtil.contains(serviceHost, "http")) {
-            return String.format("http://%s,%s", serviceHost, servicePort);
+            return String.format("http://%s:%s", serviceHost, servicePort);
         }
         return String.format("%s:%s", serviceHost, servicePort);
     }

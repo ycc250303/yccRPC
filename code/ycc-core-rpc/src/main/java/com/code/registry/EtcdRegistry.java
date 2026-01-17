@@ -48,7 +48,7 @@ public class EtcdRegistry implements Registry {
 
         long leaseId = leaseClient.grant(30).get().getID();
 
-        String registryKey = ETCD_ROOT_PATH + serviceMetaInfo.getServiceKey();
+        String registryKey = ETCD_ROOT_PATH + serviceMetaInfo.getServiceNodeKey();
         ByteSequence key = ByteSequence.from(registryKey, StandardCharsets.UTF_8);
         ByteSequence value = ByteSequence.from(JSONUtil.toJsonStr(serviceMetaInfo), StandardCharsets.UTF_8);
 
@@ -70,8 +70,8 @@ public class EtcdRegistry implements Registry {
             // 获取所有以serviceKey为前缀的节点
             GetOption getOption = GetOption.builder().isPrefix(true).build();
             List<KeyValue> keyValues = kvClient.get(
-                            ByteSequence.from(searchPrefix, StandardCharsets.UTF_8),
-                            getOption)
+                    ByteSequence.from(searchPrefix, StandardCharsets.UTF_8),
+                    getOption)
                     .get()
                     .getKvs();
 
