@@ -31,6 +31,11 @@ public class ServiceProxy implements InvocationHandler {
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // 对于 Object 的方法，直接调用，不走 RPC
+        if (method.getDeclaringClass() == Object.class) {
+            return method.invoke(this, args);
+        }
+
         final Serializer serializer = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
 
         // 构造请求

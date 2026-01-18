@@ -61,6 +61,10 @@ public class JsonSerializer implements Serializer {
      * @throws IOException
      */
     private <T> T handleResponse(RpcResponse rpcResponse, Class<T> type) throws IOException {
+        // 如果没有数据或类型，直接返回
+        if (rpcResponse.getData() == null || rpcResponse.getDataType() == null) {
+            return type.cast(rpcResponse);
+        }
         byte[] dataBytes = OBJECT_MAPPER.writeValueAsBytes(rpcResponse.getData());
         rpcResponse.setData(OBJECT_MAPPER.readValue(dataBytes, rpcResponse.getDataType()));
         return type.cast(rpcResponse);
