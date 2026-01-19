@@ -1,6 +1,7 @@
 package com.code.proxy;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpRequest;
 import com.code.RpcApplication;
@@ -9,15 +10,21 @@ import com.code.constant.RpcConstant;
 import com.code.model.RpcRequest;
 import com.code.model.RpcResponse;
 import com.code.model.ServiceMetaInfo;
+import com.code.protocol.*;
 import com.code.registry.Registry;
 import com.code.registry.RegistryFactory;
 import com.code.serializer.JdkSerializer;
 import com.code.serializer.Serializer;
 import com.code.serializer.SerializerFactory;
+import com.code.server.tcp.VertxTcpClient;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class ServiceProxy implements InvocationHandler {
     /**
@@ -65,15 +72,9 @@ public class ServiceProxy implements InvocationHandler {
             }
             ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
 
-            // 发送请求
-            try (HttpResponse httpResponse = HttpRequest.post(selectedServiceMetaInfo.getServiceAddress())
-                    .body(bodyBytes)
-                    .execute()) {
-                byte[] request = httpResponse.bodyBytes();
-                // 反序列化
-                RpcResponse rpcResponse = serializer.deserialize(request, RpcResponse.class);
-                return rpcResponse.getData();
-            }
+            // 发送 TCP 请求
+            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo)
+            return rpcResponse.getData();
         } catch (Exception e) {
             e.printStackTrace();
         }

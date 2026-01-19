@@ -2,7 +2,7 @@
 
 手写RPC框架
 
-项目参考：[鱼皮rpc](https://github.com/liyupi/yu-rpc)
+[项目参考](https://github.com/liyupi/yu-rpc)
 
 ## 项目组成
 

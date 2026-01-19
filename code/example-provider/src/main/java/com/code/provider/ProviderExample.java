@@ -5,12 +5,10 @@ import com.code.config.RegistryConfig;
 import com.code.config.RpcConfig;
 import com.code.constant.RpcConstant;
 import com.code.model.ServiceMetaInfo;
-import com.code.model.User;
 import com.code.registry.LocalRegistry;
 import com.code.registry.Registry;
 import com.code.registry.RegistryFactory;
-import com.code.server.HttpServer;
-import com.code.server.VertxHttpServer;
+import com.code.server.tcp.VertxTcpServer;
 import com.code.service.UserService;
 
 /**
@@ -41,8 +39,8 @@ public class ProviderExample {
             throw new RuntimeException(e);
         }
 
-        // 启动 web 服务
-        HttpServer httpServer = new VertxHttpServer();
-        httpServer.doStart(RpcApplication.getRpcConfig().getServerPort());
+        // 启动 TCP 服务
+        VertxTcpServer vertxHttpServer = new VertxTcpServer();
+        vertxHttpServer.doStart(RpcApplication.getRpcConfig().getServerPort());
     }
 }

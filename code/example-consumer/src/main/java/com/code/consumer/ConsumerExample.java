@@ -12,10 +12,13 @@ import com.code.utils.ConfigUtils;
 public class ConsumerExample {
 
     public static void main(String[] args) {
+        System.out.println("================ 1 =============");
         // 获取代理
         UserService userService = ServiceProxyFactory.getProxy(UserService.class);
         User user = new User();
         user.setName("ycc");
+
+        System.out.println("================ 2 =============");
         // 调用
         User newUser = userService.getUser(user);
         if (newUser != null) {
@@ -23,9 +26,11 @@ public class ConsumerExample {
         } else {
             System.out.println("user == null");
         }
+
+        System.out.println("================ 3 =============");
         long number = userService.getNumber();
         System.out.println(number);
-        System.out.println("=============================");
+        System.out.println("================ 4 ============");
     }
 }
 

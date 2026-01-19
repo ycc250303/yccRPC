@@ -1,4 +1,4 @@
-package com.code.server;
+package com.code.server.http;
 
 import io.vertx.core.Vertx;
 

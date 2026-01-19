@@ -1,8 +1,8 @@
 package com.code.provider;
 
 import com.code.registry.LocalRegistry;
-import com.code.server.HttpServer;
-import com.code.server.VertxHttpServer;
+import com.code.server.http.HttpServer;
+import com.code.server.http.VertxHttpServer;
 import com.code.service.UserService;
 
 public class EasyProviderExample {

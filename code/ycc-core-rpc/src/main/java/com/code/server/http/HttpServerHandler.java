@@ -1,4 +1,4 @@
-package com.code.server;
+package com.code.server.http;
 
 import com.code.RpcApplication;
 import com.code.model.RpcRequest;
