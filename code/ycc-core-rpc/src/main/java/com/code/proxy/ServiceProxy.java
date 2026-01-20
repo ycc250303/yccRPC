@@ -7,6 +7,8 @@ import cn.hutool.http.HttpRequest;
 import com.code.RpcApplication;
 import com.code.config.RpcConfig;
 import com.code.constant.RpcConstant;
+import com.code.loadbalancer.LoadBalancer;
+import com.code.loadbalancer.LoadBalancerFactory;
 import com.code.model.RpcRequest;
 import com.code.model.RpcResponse;
 import com.code.model.ServiceMetaInfo;
@@ -23,7 +25,9 @@ import io.vertx.core.net.NetClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class ServiceProxy implements InvocationHandler {
@@ -70,10 +74,14 @@ public class ServiceProxy implements InvocationHandler {
                 System.err.println("未发现服务节点，查询 Key: " + serviceMetaInfo.getServiceKey());
                 throw new RuntimeException("暂无服务地址");
             }
-            ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
+
+            // 负载均衡
+            LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(rpcConfig.getLoadBalancer());
+            Map<String,Object> requestParams = new HashMap<>();
+            ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
 
             // 发送 TCP 请求
-            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo)
+            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
             return rpcResponse.getData();
         } catch (Exception e) {
             e.printStackTrace();

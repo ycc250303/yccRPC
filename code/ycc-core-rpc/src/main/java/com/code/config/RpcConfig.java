@@ -1,5 +1,7 @@
 package com.code.config;
 
+import com.code.loadbalancer.LoadBalancer;
+import com.code.loadbalancer.LoadBalancerKeys;
 import com.code.serializer.SerializerKeys;
 import lombok.Data;
 
@@ -39,4 +41,9 @@ public class RpcConfig {
      * 注册中心配置
      */
     private RegistryConfig registryConfig = new RegistryConfig();
+
+    /**
+     * 负载均衡方式
+     */
+    private String loadBalancer = LoadBalancerKeys.ROUND_ROBIN;
 }
