@@ -51,7 +51,8 @@ public class VertxTcpClient {
      * @throws InterruptedException
      * @throws ExecutionException
      */
-    public static RpcResponse doRequest(RpcRequest rpcRequest, ServiceMetaInfo serviceMetaInfo) throws InterruptedException, ExecutionException {
+    public static RpcResponse doRequest(RpcRequest rpcRequest, ServiceMetaInfo serviceMetaInfo)
+            throws InterruptedException, ExecutionException {
         // 发送 TCP 请求
         Vertx vertx = Vertx.vertx();
         NetClient netClient = vertx.createNetClient();
@@ -59,7 +60,11 @@ public class VertxTcpClient {
         netClient.connect(serviceMetaInfo.getServicePort(), serviceMetaInfo.getServiceHost(),
                 result -> {
                     if (!result.succeeded()) {
-                        System.err.println("Failed to connect to TCP server");
+                        System.err.println("Failed to connect to TCP server: " + result.cause().getMessage());
+                        // 完成 future 并设置异常，以便重试机制能够捕获
+                        responseFuture.completeExceptionally(
+                                new RuntimeException("连接TCP服务器失败: " + result.cause().getMessage(), result.cause()));
+                        netClient.close();
                         return;
                     }
                     NetSocket socket = result.result();
@@ -69,7 +74,8 @@ public class VertxTcpClient {
                     ProtocolMessage.Header header = new ProtocolMessage.Header();
                     header.setMagic(ProtocolConstant.PROTOCOL_MAGIC);
                     header.setVersion(ProtocolConstant.PROTOCOL_VERSION);
-                    header.setSerializer((byte) ProtocolMessageSerializerEnum.getEnumByValue(RpcApplication.getRpcConfig().getSerializer()).getKey());
+                    header.setSerializer((byte) ProtocolMessageSerializerEnum
+                            .getEnumByValue(RpcApplication.getRpcConfig().getSerializer()).getKey());
                     header.setType((byte) ProtocolMessageTypeEnum.REQUEST.getKey());
                     // 生成全局请求 ID
                     header.setRequestId(IdUtil.getSnowflakeNextId());
@@ -81,22 +87,38 @@ public class VertxTcpClient {
                         Buffer encodeBuffer = ProtocolMessageEncoder.encode(protocolMessage);
                         socket.write(encodeBuffer);
                     } catch (IOException e) {
-                        throw new RuntimeException("协议消息编码错误");
+                        responseFuture.completeExceptionally(new RuntimeException("协议消息编码错误", e));
+                        netClient.close();
+                        return;
                     }
 
                     // 接收响应
                     TcpBufferHandlerWrapper bufferHandlerWrapper = new TcpBufferHandlerWrapper(
                             buffer -> {
                                 try {
-                                    ProtocolMessage<RpcResponse> rpcResponseProtocolMessage =
-                                            (ProtocolMessage<RpcResponse>) ProtocolMessageDecoder.decode(buffer);
+                                    ProtocolMessage<RpcResponse> rpcResponseProtocolMessage = (ProtocolMessage<RpcResponse>) ProtocolMessageDecoder
+                                            .decode(buffer);
                                     responseFuture.complete(rpcResponseProtocolMessage.getBody());
                                 } catch (IOException e) {
-                                    throw new RuntimeException("协议消息解码错误");
+                                    responseFuture.completeExceptionally(new RuntimeException("协议消息解码错误", e));
+                                    netClient.close();
                                 }
-                            }
-                    );
+                            });
                     socket.handler(bufferHandlerWrapper);
+
+                    // 处理连接异常关闭的情况
+                    socket.exceptionHandler(throwable -> {
+                        responseFuture.completeExceptionally(new RuntimeException("TCP连接异常", throwable));
+                        netClient.close();
+                    });
+
+                    socket.closeHandler(v -> {
+                        // 如果连接关闭但 future 还未完成，说明可能是异常关闭
+                        if (!responseFuture.isDone()) {
+                            responseFuture.completeExceptionally(new RuntimeException("TCP连接已关闭"));
+                            netClient.close();
+                        }
+                    });
 
                 });
 

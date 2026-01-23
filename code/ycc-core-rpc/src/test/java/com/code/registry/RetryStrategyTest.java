@@ -1,5 +1,6 @@
 package com.code.registry;
 
+import com.code.fault.retry.FixedIntervalRetryStrategy;
 import com.code.fault.retry.NoRetryStrategy;
 import com.code.fault.retry.RetryStrategy;
 import com.code.model.RpcResponse;
@@ -10,7 +11,7 @@ import org.junit.Test;
  */
 public class RetryStrategyTest {
 
-    RetryStrategy retryStrategy = new NoRetryStrategy();
+    RetryStrategy retryStrategy = new FixedIntervalRetryStrategy();
 
     @Test
     public void doRetry() {
