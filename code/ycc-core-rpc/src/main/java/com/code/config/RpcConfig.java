@@ -1,6 +1,7 @@
 package com.code.config;
 
 import com.code.fault.retry.RetryStrategyKeys;
+import com.code.fault.tolerant.TolerantStrategyKeys;
 import com.code.loadbalancer.LoadBalancer;
 import com.code.loadbalancer.LoadBalancerKeys;
 import com.code.serializer.SerializerKeys;
@@ -52,4 +53,9 @@ public class RpcConfig {
      * 重试策略
      */
     private String retryStrategy = RetryStrategyKeys.NO;
+
+    /**
+     * 容错策略
+     */
+    private String tolerantStrategy = TolerantStrategyKeys.FAIL_FAST;
 }
